@@ -25,12 +25,12 @@ echo "Removing the old container and image ..."
 /usr/bin/docker image rm mataelang-snort
 
 echo "Preparing ..."
-/usr/bin/docker pull mataelang/snorqttalpine-sensor:stable
+/usr/bin/docker pull mataelang/snorqttsensor-stable:1.0
 
 echo "Building the Docker Image..."
 if [[ $RULE_CHOICE -eq 1 ]]; then
   echo "Using Snort Community Rules.."
-  docker tag mataelang/snorqttalpine-sensor:stable mataelang-snort
+  docker tag mataelang/snorqttsensor-stable:1.0 mataelang-snort
 fi
 
 if [[ $RULE_CHOICE -eq 2 ]]; then
