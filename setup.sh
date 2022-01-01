@@ -30,7 +30,7 @@ if [[ ! $RULE_CHOICE -eq 1 && ! $RULE_CHOICE -eq 2 ]]; then
 fi
 
 echo "Preparing ..."
-/usr/bin/docker pull mataelang/snorqttalpine-sensor:stable
+/usr/bin/docker pull mataelang/snorqttsensor-stable:1.0
 
 echo "Configuring ..."
 mkdir -p /etc/mataelang-sensor
@@ -48,7 +48,7 @@ cp ${SCRIPTPATH}/service/mataelang-snort.service /etc/systemd/system/
 
 if [[ $RULE_CHOICE -eq 1 ]]; then
   echo "Using Snort Community Rules.."
-  docker tag mataelang/snorqttalpine-sensor:stable mataelang-snort
+  docker tag mataelang/snorqttsensor-stable:1.0 mataelang-snort
 fi
 
 if [[ $RULE_CHOICE -eq 2 ]]; then
