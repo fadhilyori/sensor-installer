@@ -1,4 +1,4 @@
-FROM mataelang/snorqttalpine-sensor:latest
+FROM mataelang/snorqttalpine-sensor:stable
 
 ARG OINKCODE
 COPY conf/pulledpork-registered.conf /etc/snort/pulledpork.conf
