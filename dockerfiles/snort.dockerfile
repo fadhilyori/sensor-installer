@@ -1,4 +1,6 @@
-FROM mataelang/snorqttsensor-stable:1.0
+ARG IMAGE_TAG=1.0
+
+FROM mataelang/snorqttsensor-stable:${IMAGE_TAG}
 
 ARG OINKCODE
 COPY conf/pulledpork-registered.conf /etc/snort/pulledpork.conf
