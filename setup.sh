@@ -8,6 +8,8 @@ fi
 command -v docker >/dev/null 2>&1 || { echo >&2 "This service requires Docker, but your computer doesn't have it. Install Docker then try again. Aborting."; exit 1; }
 
 SCRIPTPATH="$( cd "$(dirname "$0")" >/dev/null 2>&1 ; pwd -P )"
+IMAGE_TAG=dev
+IMAGE_NAME=mataelang/snorqttsensor-stable
 
 read -p "Protected subnet : " PROTECTED_SUBNET
 read -p "External subnet [default is any] : " EXTERNAL_SUBNET
@@ -30,7 +32,7 @@ if [[ ! $RULE_CHOICE -eq 1 && ! $RULE_CHOICE -eq 2 ]]; then
 fi
 
 echo "Preparing ..."
-/usr/bin/docker pull mataelang/snorqttsensor-stable:1.0
+/usr/bin/docker pull ${IMAGE_NAME}:${IMAGE_TAG}
 
 echo "Configuring ..."
 mkdir -p /etc/mataelang-sensor
@@ -48,19 +50,19 @@ cp ${SCRIPTPATH}/service/mataelang-snort.service /etc/systemd/system/
 
 if [[ $RULE_CHOICE -eq 1 ]]; then
   echo "Using Snort Community Rules.."
-  docker tag mataelang/snorqttsensor-stable:1.0 mataelang-snort
+  docker tag ${IMAGE_NAME}:${IMAGE_TAG} mataelang-snort
 fi
 
 if [[ $RULE_CHOICE -eq 2 ]]; then
   read -p "Input your oinkcode here : " OINKCODE
-  /usr/bin/docker build --no-cache --build-arg OINKCODE=${OINKCODE} -f ${SCRIPTPATH}/dockerfiles/snort.dockerfile -t mataelang-snort ${SCRIPTPATH}/
+  /usr/bin/docker build --no-cache --build-arg IMAGE_TAG=${IMAGE_TAG} --build-arg OINKCODE=${OINKCODE} -f ${SCRIPTPATH}/dockerfiles/snort.dockerfile -t mataelang-snort ${SCRIPTPATH}/
 fi
 
 systemctl daemon-reload
 echo "Registering Mata Elang sensor service..."
 systemctl enable mataelang-snort.service
 echo "Creating container..."
-/usr/bin/docker create --name mataelang-sensor --network host -v /etc/localtime:/etc/localtime -v /etc/timezone:/etc/timezone --env-file /etc/mataelang-sensor/sensor.env mataelang-snort
+/usr/bin/docker create --name mataelang-sensor --network host -v /etc/localtime:/etc/localtime -v /etc/timezone:/etc/timezone -v /var/log/mataelang-sensor:/var/log/mataelang-sensor --env-file /etc/mataelang-sensor/sensor.env mataelang-snort
 echo "Starting sensor..."
 systemctl start mataelang-snort.service
 
