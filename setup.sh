@@ -28,7 +28,7 @@ USAGE
   exit 1
 }
 
-SCRIPTPATH="$( cd "$(dirname "$0")" >/dev/null 2>&1 ; pwd -P )"
+SCRIPTPATH="$( cd "$(dirname "$0")" >/dev/null 2>&1 || exit ; pwd -P )"
 IMAGE_TAG=latest
 IMAGE_NAME=mataelang/snorqttsensor-stable
 NO_ASK=false
@@ -105,45 +105,45 @@ if [ $NO_ASK != true ] ; then
   if [ -z "$PS1" ] ; then
     # interactive
     if [ -z "$PROTECTED_SUBNET" ]; then
-      read -p "Protected subnet [default is any] : " PROTECTED_SUBNET
+      read -rp "Protected subnet [default is any] : " PROTECTED_SUBNET
       PROTECTED_SUBNET=${PROTECTED_SUBNET:-any}
     fi
 
     if [ -z "$EXTERNAL_SUBNET" ]; then
-      read -p "External subnet [default is any] : " EXTERNAL_SUBNET
+      read -rp "External subnet [default is any] : " EXTERNAL_SUBNET
       EXTERNAL_SUBNET=${EXTERNAL_SUBNET:-any}
     fi
 
     if [ -z "$ALERT_MQTT_TOPIC" ]; then
-      read -p "MQTT topic [default is snoqttv5] : " ALERT_MQTT_TOPIC
+      read -rp "MQTT topic [default is snoqttv5] : " ALERT_MQTT_TOPIC
       ALERT_MQTT_TOPIC=${ALERT_MQTT_TOPIC:-snoqttv5}
     fi
     
     if [ -z "$ALERT_MQTT_SERVER" ]; then
-      read -p "Mosquitto (MQTT Broker) IP : " ALERT_MQTT_SERVER
+      read -rp "Mosquitto (MQTT Broker) IP : " ALERT_MQTT_SERVER
     fi
     
     if [ -z "$ALERT_MQTT_PORT" ]; then
-      read -p "Mosquitto (MQTT Broker) Port [default is 1883] : " ALERT_MQTT_PORT
+      read -rp "Mosquitto (MQTT Broker) Port [default is 1883] : " ALERT_MQTT_PORT
       ALERT_MQTT_PORT=${ALERT_MQTT_PORT:-1883}
     fi
     
     if [ -z "$DEVICE_ID" ]; then
-      read -p "Device ID : " DEVICE_ID
+      read -rp "Device ID : " DEVICE_ID
     fi
     
     if [ -z "$NETINT" ]; then
-      echo "Available Network Interface : `ls -C /sys/class/net`"
-      read -p "Network Interface : " NETINT
+      echo "Available Network Interface : $(ls -C /sys/class/net)"
+      read -rp "Network Interface : " NETINT
     fi
     
     if [ -z "$COMPANY" ]; then
-      read -p "Company : " COMPANY
+      read -rp "Company : " COMPANY
     fi
     
     if [ -z "$RULE_CHOICE" ]; then
       echo -e "What kind rules do you want to use?\n\t1. Community\n\t2. Registered (required oinkcode)\n"
-      read -p "Your choice : " RULE_CHOICE
+      read -rp "Your choice : " RULE_CHOICE
     fi
 
     if [[ ! $RULE_CHOICE -eq 1 && ! $RULE_CHOICE -eq 2 ]]; then
@@ -152,7 +152,7 @@ if [ $NO_ASK != true ] ; then
     fi
 
     if [[ $RULE_CHOICE -eq 2 ]] && [[ -z $OINKCODE ]]; then
-      read -p "Input your oinkcode here : " OINKCODE
+      read -rp "Input your oinkcode here : " OINKCODE
     fi
   else
     printf "Your shell is not in interactive mode. Exiting"
@@ -168,34 +168,34 @@ else
   ALERT_MQTT_PORT=${ALERT_MQTT_PORT:-1883}
   RULE_CHOICE=${RULE_CHOICE:-1}
 
-  if [ -z $ALERT_MQTT_SERVER ]; then
+  if [ -z "$ALERT_MQTT_SERVER" ]; then
     printf "MQTT Broker host is required\n"
     exit 1
   fi
 
-  if [ -z $DEVICE_ID ]; then
+  if [ -z "$DEVICE_ID" ]; then
     printf "Device ID is required\n"
     exit 1
   fi
 
-  if [ -z $NETINT ]; then
+  if [ -z "$NETINT" ]; then
     printf "Network Interface is required\n"
     exit 1
   fi
 
-  if [ -z $COMPANY ]; then
+  if [ -z "$COMPANY" ]; then
     printf "Company is required\n"
     exit 1
   fi
 
-  if [ -z $OINKCODE ] && [ $RULE_CHOICE == 2 ]; then
+  if [ -z "$OINKCODE" ] && [ "$RULE_CHOICE" == 2 ]; then
     printf "Oinkcode is required if using registered rules\n"
     exit 1
   fi
 fi
 
 printf "\nPreparing ..."
-/usr/bin/docker pull ${IMAGE_NAME}:${IMAGE_TAG}
+/usr/bin/docker pull ${IMAGE_NAME}:"${IMAGE_TAG}"
 
 printf "[done] \nConfiguring ..."
 mkdir -p /etc/mataelang-sensor
@@ -209,13 +209,13 @@ DEVICE_ID=${DEVICE_ID}
 NETINT=${NETINT}
 COMPANY=${COMPANY}
 EOL
-cp ${SCRIPTPATH}/service/mataelang-snort.service /etc/systemd/system/
+cp "${SCRIPTPATH}"/service/mataelang-snort.service /etc/systemd/system/
 
 if [[ $RULE_CHOICE -eq 1 ]]; then
   printf "[done] \nUsing Snort Community Rules."
-  docker tag ${IMAGE_NAME}:${IMAGE_TAG} mataelang-snort
+  docker tag ${IMAGE_NAME}:"${IMAGE_TAG}" mataelang-snort
 elif [[ $RULE_CHOICE -eq 2 ]]; then
-  /usr/bin/docker build --no-cache --build-arg IMAGE_TAG=${IMAGE_TAG} --build-arg OINKCODE=${OINKCODE} -f ${SCRIPTPATH}/dockerfiles/snort.dockerfile -t mataelang-snort ${SCRIPTPATH}/
+  /usr/bin/docker build --no-cache --build-arg IMAGE_TAG="${IMAGE_TAG}" --build-arg OINKCODE="${OINKCODE}" -f "${SCRIPTPATH}"/dockerfiles/snort.dockerfile -t mataelang-snort "${SCRIPTPATH}"/
 fi
 
 systemctl daemon-reload

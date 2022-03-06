@@ -20,7 +20,7 @@ USAGE
   exit 1
 }
 
-SCRIPTPATH="$( cd "$(dirname "$0")" >/dev/null 2>&1 ; pwd -P )"
+SCRIPTPATH="$( cd "$(dirname "$0")" >/dev/null 2>&1 || exit ; pwd -P )"
 IMAGE_TAG=latest
 IMAGE_NAME=mataelang/snorqttsensor-stable
 NO_ASK=false
@@ -66,7 +66,7 @@ if [ $NO_ASK != true ] ; then
     # interactive
     if [ -z "$RULE_CHOICE" ]; then
       echo -e "What kind rules do you want to use?\n\t1. Community\n\t2. Registered (required oinkcode)\n"
-      read -p "Your choice : " RULE_CHOICE
+      read -rp "Your choice : " RULE_CHOICE
     fi
 
     if [[ ! $RULE_CHOICE -eq 1 && ! $RULE_CHOICE -eq 2 ]]; then
@@ -75,7 +75,7 @@ if [ $NO_ASK != true ] ; then
     fi
 
     if [[ $RULE_CHOICE -eq 2 ]] && [[ -z $OINKCODE ]]; then
-      read -p "Input your oinkcode here : " OINKCODE
+      read -rp "Input your oinkcode here : " OINKCODE
     fi
   else
     printf "Your shell is not in interactive mode. Exiting"
@@ -87,7 +87,7 @@ else
   IMAGE_TAG=${IMAGE_TAG:-latest}
   RULE_CHOICE=${RULE_CHOICE:-1}
 
-  if [ -z $OINKCODE ] && [ $RULE_CHOICE == 2 ]; then
+  if [ -z "$OINKCODE" ] && [ "$RULE_CHOICE" == 2 ]; then
     printf "Oinkcode is required if using registered rules\n"
     exit 1
   fi
@@ -101,14 +101,14 @@ printf "[done]\nRemoving the old container and image: "
 /usr/bin/docker image rm mataelang-snort
 
 printf "\nPreparing ...\n"
-/usr/bin/docker pull ${IMAGE_NAME}:${IMAGE_TAG}
+/usr/bin/docker pull ${IMAGE_NAME}:"${IMAGE_TAG}"
 
 printf "\nBuilding the Docker Image: "
 if [[ $RULE_CHOICE -eq 1 ]]; then
   printf "\nUsing Snort Community Rules.."
-  docker tag ${IMAGE_NAME}:${IMAGE_TAG} mataelang-snort
+  docker tag ${IMAGE_NAME}:"${IMAGE_TAG}" mataelang-snort
 elif [[ $RULE_CHOICE -eq 2 ]]; then
-  /usr/bin/docker build --no-cache --build-arg IMAGE_TAG=${IMAGE_TAG} --build-arg OINKCODE=${OINKCODE} -f ${SCRIPTPATH}/dockerfiles/snort.dockerfile -t mataelang-snort ${SCRIPTPATH}/
+  /usr/bin/docker build --no-cache --build-arg IMAGE_TAG="${IMAGE_TAG}" --build-arg OINKCODE="${OINKCODE}" -f "${SCRIPTPATH}"/dockerfiles/snort.dockerfile -t mataelang-snort "${SCRIPTPATH}"/
 fi
 
 printf "\nRe-creating container: "
