@@ -10,7 +10,7 @@ function usage() {
       -h | --help                 Print this message
       -k | --oinkcode             Oinkcode for downloading registered rules (required if using registered rules)
       -n | --no-ask               No asking (non-interactive)
-      -t | --tag                  Define the image tag to use (default: latest)
+      -t | --tag                  Define the image tag to use (default: 1.0)
       --community                 Use the community rules (already default)
       --registered                Use the registered rules (required oinkcode, use with -k or --oinkcode flag)
 
@@ -21,7 +21,7 @@ USAGE
 }
 
 SCRIPTPATH="$( cd "$(dirname "$0")" >/dev/null 2>&1 || exit ; pwd -P )"
-IMAGE_TAG=latest
+IMAGE_TAG="1.0"
 IMAGE_NAME=mataelang/snorqttsensor-stable
 NO_ASK=false
 
@@ -30,7 +30,7 @@ do
   case $1 in
     -t | --tag)
       shift
-      IMAGE_TAG=${1:-latest}
+      IMAGE_TAG=${1:-1.0}
       ;;
     -k | --oinkcode)
       shift
@@ -84,7 +84,7 @@ if [ $NO_ASK != true ] ; then
 else
   # non-interactive
   # check the value
-  IMAGE_TAG=${IMAGE_TAG:-latest}
+  IMAGE_TAG=${IMAGE_TAG:-1.0}
   RULE_CHOICE=${RULE_CHOICE:-1}
 
   if [ -z "$OINKCODE" ] && [ "$RULE_CHOICE" == 2 ]; then

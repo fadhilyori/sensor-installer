@@ -16,7 +16,7 @@ function usage() {
       -n | --no-ask               No asking (non-interactive)
       -o | --topic                Define alert topic that used in MQTT Broker (default: snoqttv5)
       -p | --protected-subnet     Define protected subnet for Snort (default: any)
-      -t | --tag                  Define the image tag to use (default: latest)
+      -t | --tag                  Define the image tag to use (default: 1.0)
       --mqtt-broker-host          Define MQTT Broker Host
       --mqtt-broker-port          Define MQTT Broker Port (default: 1883)
       --community                 Use the community rules (already default)
@@ -29,7 +29,7 @@ USAGE
 }
 
 SCRIPTPATH="$( cd "$(dirname "$0")" >/dev/null 2>&1 || exit ; pwd -P )"
-IMAGE_TAG=latest
+IMAGE_TAG="1.0"
 IMAGE_NAME=mataelang/snorqttsensor-stable
 NO_ASK=false
 
@@ -38,7 +38,7 @@ do
   case $1 in
     -t | --tag)
       shift
-      IMAGE_TAG=${1:-latest}
+      IMAGE_TAG=${1:-1.0}
       ;;
     -p | --protected-subnet) 
       shift
@@ -161,7 +161,7 @@ if [ $NO_ASK != true ] ; then
 else
   # non-interactive
   # check the value
-  IMAGE_TAG=${IMAGE_TAG:-latest}
+  IMAGE_TAG=${IMAGE_TAG:-1.0}
   PROTECTED_SUBNET=${PROTECTED_SUBNET:-any}
   EXTERNAL_SUBNET=${EXTERNAL_SUBNET:-any}
   ALERT_MQTT_TOPIC=${ALERT_MQTT_TOPIC:-snoqttv5}
