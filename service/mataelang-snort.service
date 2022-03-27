@@ -5,7 +5,6 @@ After=docker.service
 
 [Service]
 Restart=always
-
 ExecStart=/usr/bin/docker start --attach mataelang-sensor
 ExecStop=/usr/bin/docker stop mataelang-sensor
 ExecReload=/usr/bin/docker restart mataelang-sensor
