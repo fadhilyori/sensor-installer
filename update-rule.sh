@@ -21,7 +21,7 @@ USAGE
 }
 
 SCRIPTPATH="$( cd "$(dirname "$0")" >/dev/null 2>&1 || exit ; pwd -P )"
-IMAGE_TAG=latest
+IMAGE_TAG=1.0
 IMAGE_NAME=mataelang/snorqttsensor-stable
 NO_ASK=false
 
